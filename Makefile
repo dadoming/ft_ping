@@ -1,7 +1,7 @@
 NAME = ping
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror #-fsanitize=address -g
 
 SRC = $(wildcard src/*.c)
 SRC_LIST = $(notdir $(SRC))
@@ -9,11 +9,11 @@ SRC_LIST = $(notdir $(SRC))
 OBJ_LIST = $(SRC_LIST:%.c=%.o)
 OBJ_DIR = obj/
 OBJ = $(addprefix obj/, $(OBJ_LIST))
-
 all: $(NAME)
 
+# lm link math
 $(NAME): $(OBJ_DIR) $(OBJ)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -lm
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)

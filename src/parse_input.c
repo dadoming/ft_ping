@@ -5,6 +5,12 @@ static void enter_flag_data_with_value(t_flag *flag, char **argv, int argc, int 
 static void check_invalid_input_arguments(t_ping *ping, char **argv, int argc);
 static void set_destination_address(t_ping *ping, char **argv, int argc, int i);
 
+void invalid_value(t_ping *ping, long value, char *flag, char *extra) {
+	printf("Invalid value for flag -%s: %ld", flag, value);
+	printf("%s\n", extra ? extra : "");
+	exit_program(ping);
+}
+
 void parse_input(t_ping *ping, int argc, char **argv) {
 	check_invalid_input_arguments(ping, argv, argc);
 
@@ -64,8 +70,8 @@ static void set_destination_address(t_ping *ping, char **argv, int argc, int i) 
 		usage_message(argv[0], 5);
 		exit_program(ping);
 	} else if (argv[i][0] != '-') {
-		ping->destination_addr = argv[i];
-		printf("Destination address: %s\n", argv[i]);
+		ping->dest_addr = argv[i];
+		//printf("Destination address: %s\n", argv[i]);
 	} else {
 		usage_message(argv[0], 2);
 		exit_program(ping);

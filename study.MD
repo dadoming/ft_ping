@@ -41,6 +41,15 @@ Important things to note from this page:
     - ICMP_FILTER Enable a special filter for raw sockets bound to the IPPROTO_ICMP protocol. The value has a bit set for each ICMP message type which should be filtered out.  The default is to filter no ICMP messages. In addition, all ip(7) IPPROTO_IP socket options valid for datagram sockets are supported.
 - ... and more
 
+##### ICMP Packet Format
+
+In the ICMP packet format, the first 8 bytes are the ICMP header, followed by the IP header, and then the data. The ICMP header consists of the following fields:
+- Type (8 bits): Type 0 is an echo reply, type 8 is an echo request.
+- Code (8 bits): This field carries some additional information about the error message and type.
+- Checksum (16 bits): The checksum is used to check the number of bits of the complete message and enable the ICMP tool to ensure that complete data is delivered.
+- Rest of the header (32 bits): This is the Extended Header, which has the work of pointing out the problem in IP Message. Byte locations are identified by the pointer which causes the problem message and receiving device looks here for pointing to the problem.
+
+
 
 ##### Checkout the TSO PING command: Send an echo request
 [IBM docs](https://www.ibm.com/docs/en/zos/3.1.0?topic=ping-tso-command-send-echo-request)

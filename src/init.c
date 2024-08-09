@@ -9,6 +9,13 @@ void init_program(t_ping *ping) {
 		exit_program(ping);
 	}
 	init_flags(ping);
+	ping->ttl = DEFAULT_TIME_TO_LIVE;
+	bzero(&ping->stats, sizeof(t_ping_stats));
+	ping->stats.all_rtt = malloc(sizeof(double));
+	if (!ping->stats.all_rtt) {
+		perror("malloc() failed");
+		exit_program(ping);
+	}
 }
 
 static void init_flags(t_ping *ping) {
@@ -18,5 +25,5 @@ static void init_flags(t_ping *ping) {
 
 	ping->flags.v.value = 0;
 	ping->flags.v.name = FLAG_VERBOSE;
-	ping->flags.v.entered = true;
+	ping->flags.v.entered = false;
 }
