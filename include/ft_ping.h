@@ -22,10 +22,8 @@
 #define DEBUG true
 
 #define PORT_NO 0 // Automatic port number
-#define PING_DEFAULT_INTERVAL 1000000
-// Gives the timeout delay for receiving packets
-// in seconds
-#define RECV_TIMEOUT 1
+#define PING_DEFAULT_INTERVAL_SEC 1
+#define RECV_TIMEOUT 1 // TGives the timeout delay for receiving packets in seconds
 #define PING_PACKET_SIZE 64
 #define DEFAULT_TIME_TO_LIVE 64
 
@@ -54,16 +52,17 @@ typedef struct s_ping_stats
 {
 	int sent;
 	int received;
+	int packet_loss;
+	long total_msec;
 	double min;
 	double max;
 	double avg;
+	double mdev;
 	double *all_rtt;
 } t_ping_stats;
 
 typedef struct s_timing
 {
-	//struct timespec start;
-	//struct timespec end;
 	struct timeval start;
 	struct timeval end;
 } t_timing;
@@ -92,6 +91,14 @@ void setup_socket(t_ping *ping);
 
 void start_ping(t_ping *ping);
 
-//double calculate_elapsed_time(struct timespec start, struct timespec end);
 double calculate_elapsed_time(struct timeval start, struct timeval end);
 void get_current_time(struct timeval *tv);
+unsigned short calculate_checksum(void *b, int len);
+void fill_packet_header(t_ping_pkt *packet, int seq);
+
+void calculate_statistics(t_ping *ping);
+void print_statistics(t_ping *ping);
+
+
+
+int count_flag(t_ping *ping);
