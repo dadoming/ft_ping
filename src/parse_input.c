@@ -13,6 +13,7 @@ void invalid_value(t_ping *ping, long value, char *flag, char *extra) {
 
 void parse_input(t_ping *ping, int argc, char **argv) {
 	check_invalid_input_arguments(ping, argv, argc);
+	help_flag(ping, argc, argv);
 
 	int i = 1;
 	while (i < argc - 1) {
@@ -27,6 +28,12 @@ void parse_input(t_ping *ping, int argc, char **argv) {
 					break;
 				case 'v':
 					ping->flags.v.entered = true;
+					break;
+				case 'q':
+					ping->flags.q.entered = true;
+					break;
+				case 'n':
+					ping->flags.n.entered = true;
 					break;
 				default:
 					printf("Unknown flag: %s\n", argv[i]);
@@ -44,16 +51,10 @@ static void check_invalid_input_arguments(t_ping *ping, char **argv, int argc) {
 		usage_message(argv[0], 0);
 		exit_program(ping);
 	}
-	else if (argc == 2) {
-		if (argv[1][0] == '-') {
-			usage_message(argv[0], 1);
-			exit_program(ping);
-		}
-	}
 }
 
 static void enter_flag_data_with_value(t_flag *flag, char **argv, int argc, int *i) {
-	if (*i + 1 < argc) {
+	if (*i + 1 < argc) { // Because last argument is destination address, so, if required, there should be a value after the flag
 		*i += 1;
 		flag->value = convert_flag_value_to_number(flag, argv[*i]);
 		flag->entered = true;
@@ -64,14 +65,12 @@ static void enter_flag_data_with_value(t_flag *flag, char **argv, int argc, int 
 }
 
 static void set_destination_address(t_ping *ping, char **argv, int argc, int i) {
-	// ping->addr_con.sin_addr.s_addr = inet_addr(address);
 	if (i >= argc) {
 		printf("Destination address not provided\n");
 		usage_message(argv[0], 5);
 		exit_program(ping);
 	} else if (argv[i][0] != '-') {
 		ping->dest_addr = argv[i];
-		//printf("Destination address: %s\n", argv[i]);
 	} else {
 		usage_message(argv[0], 2);
 		exit_program(ping);
@@ -81,7 +80,7 @@ static void set_destination_address(t_ping *ping, char **argv, int argc, int i) 
 static long convert_flag_value_to_number(t_flag *flag, char *value_str) {
 	char *endptr;
 	long value = strtol(value_str, &endptr, 10);
-	if (*endptr != '\0') {
+	if (*endptr != '\0' || value < 0) {
 		printf("Invalid value for flag -%s: %s\n", flag->name, value_str);
 		exit_program(NULL);
 	}

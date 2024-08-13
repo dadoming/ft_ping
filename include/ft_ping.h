@@ -17,13 +17,16 @@
 
 #define FLAG_COUNT "c"
 #define FLAG_VERBOSE "v"
-#define AVAILABLE_FLAGS FLAG_COUNT FLAG_VERBOSE
+#define FLAG_QUIET "q"
+#define FLAG_NUMERIC "n"
+#define FLAG_HELP "h"
+#define AVAILABLE_FLAGS FLAG_COUNT FLAG_VERBOSE FLAG_QUIET FLAG_NUMERIC FLAG_HELP
 
 #define DEBUG true
 
 #define PORT_NO 0 // Automatic port number
 #define PING_DEFAULT_INTERVAL_SEC 1
-#define RECV_TIMEOUT 1 // TGives the timeout delay for receiving packets in seconds
+#define RECV_TIMEOUT 1 // Gives the timeout delay for receiving packets in seconds
 #define PING_PACKET_SIZE 64
 #define DEFAULT_TIME_TO_LIVE 64
 
@@ -40,11 +43,14 @@ typedef struct s_flags
 {
 	t_flag c;
 	t_flag v;
+	t_flag q;
+	t_flag n;
 } t_flags;
 
 typedef struct s_ping_pkt
 {
 	struct icmphdr hdr;
+	// char msg[PING_PACKET_SIZE - sizeof(struct icmphdr)];
 	char msg[PING_PACKET_SIZE - sizeof(struct icmphdr)];
 } t_ping_pkt;
 
@@ -102,3 +108,8 @@ void print_statistics(t_ping *ping);
 
 
 int count_flag(t_ping *ping);
+int quiet_flag(t_ping *ping);
+int verbose_flag(t_ping *ping);
+int numeric_flag(t_ping *ping);
+void help_flag(t_ping *ping, int argc, char **argv);
+int timeout_flag(t_ping *ping);

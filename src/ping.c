@@ -19,14 +19,13 @@ void start_ping(t_ping *ping) {
 
     signal(SIGALRM, handle_alarm);
     signal(SIGINT, handle_interrupt);
-
-    printf("PING %s(%s (%s)) %ld data bytes.\n", \
-        ping->dest_addr, ping->reverse_hostname, \
+    printf("PING %s (%s) %ld bytes of data.\n", \
+        ping->dest_addr, \
         ping->ip_addr, PING_PACKET_SIZE - sizeof(struct icmphdr));
 
     handle_alarm(SIGALRM); // Trigger the first ping
     while (g_is_running && count_flag(ping)) {
-        pause();
+        receive_ping(global_ping, &single);
 	}
 
     get_current_time(&(session.end));
@@ -56,14 +55,16 @@ static void receive_ping(t_ping *ping, t_timing *single) {
     socklen_t addr_len = sizeof(recv_addr);
     char buffer[1024];
 
+    fd_set read_set;
+    FD_ZERO(&read_set);
+    FD_SET(ping->sock_fd, &read_set);
+    int rec = select(ping->sock_fd + 1, &read_set, NULL, NULL, &(struct timeval){RECV_TIMEOUT, 0});
+    if (rec <= 0) {
+        return;
+    }
     ssize_t bytes_received = recvfrom(ping->sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr *) &recv_addr, &addr_len);
     if (bytes_received <= 0) {
-        // return ; uncomment for evaluation
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            printf("Request timed out\n");
-        } else {
-            perror("recvfrom() failed");
-        }
+        return;
     }
 
     get_current_time(&(single->end));
@@ -71,9 +72,15 @@ static void receive_ping(t_ping *ping, t_timing *single) {
 
     struct iphdr *ip_hdr = (struct iphdr *) buffer;
     struct icmphdr *icmp_hdr = (struct icmphdr *) (buffer + (ip_hdr->ihl * 4));
-    if (icmp_hdr->type == ICMP_ECHOREPLY) {
+    if (icmp_hdr->type == ICMP_ECHOREPLY && icmp_hdr->code == 0) {
         ping->stats.received++;
-        printf("%ld bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3f ms\n", bytes_received - sizeof(struct iphdr), ping->reverse_hostname, ping->ip_addr, icmp_hdr->un.echo.sequence, ip_hdr->ttl, rtt_msec);
+        if (!quiet_flag(ping)) {
+            if (numeric_flag(ping)) {
+                printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n", bytes_received - sizeof(struct iphdr), ping->ip_addr, icmp_hdr->un.echo.sequence, ip_hdr->ttl, rtt_msec);
+            } else {
+                printf("%ld bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3f ms\n", bytes_received - sizeof(struct iphdr), ping->reverse_hostname, ping->ip_addr, icmp_hdr->un.echo.sequence, ip_hdr->ttl, rtt_msec);
+            }
+        }
         if (ping->stats.min == 0 || rtt_msec < ping->stats.min) {
             ping->stats.min = rtt_msec;
         }
@@ -83,11 +90,11 @@ static void receive_ping(t_ping *ping, t_timing *single) {
         ping->stats.avg += rtt_msec;
         ping->stats.all_rtt = realloc(ping->stats.all_rtt, ping->stats.received * sizeof(double));
         ping->stats.all_rtt[ping->stats.received - 1] = rtt_msec;
-        // comment lines below for evaluation
-    } else if (icmp_hdr->type == ICMP_DEST_UNREACH) {
-        printf("Error..Packet received with ICMP type %d code %d\n", icmp_hdr->type, icmp_hdr->code);
+
     } else {
-        printf("Received unexpected ICMP packet: type=%d code=%d\n", icmp_hdr->type, icmp_hdr->code);
+        if (!quiet_flag(ping) && verbose_flag(ping)) {
+            printf("VERBOSE | %ld bytes from %s: icmp_type=%d icmp_code=%d\n", bytes_received - sizeof(struct iphdr), ping->reverse_hostname, icmp_hdr->type, icmp_hdr->code);
+        }
     }
 }
 
@@ -96,7 +103,6 @@ static void handle_alarm(int sig) {
     (void)sig;
     if (g_is_running && count_flag(global_ping)) {
         send_ping(global_ping, &single);
-        receive_ping(global_ping, &single);
         alarm(PING_DEFAULT_INTERVAL_SEC);
     }
 }

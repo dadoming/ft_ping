@@ -31,6 +31,6 @@ void fill_packet_header(t_ping_pkt *packet, int seq) {
     packet->hdr.type = ICMP_ECHO;
     packet->hdr.code = 0;
     packet->hdr.un.echo.id = getpid();
-    packet->hdr.un.echo.sequence = seq;
+    packet->hdr.un.echo.sequence = seq + 1;
     packet->hdr.checksum = calculate_checksum(packet, sizeof(*packet));
 }

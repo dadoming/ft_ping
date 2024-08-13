@@ -26,4 +26,12 @@ static void init_flags(t_ping *ping) {
 	ping->flags.v.value = 0;
 	ping->flags.v.name = FLAG_VERBOSE;
 	ping->flags.v.entered = false;
+
+	ping->flags.q.value = 0;
+	ping->flags.q.name = FLAG_QUIET;
+	ping->flags.q.entered = false;
+
+	ping->flags.n.value = 0;
+	ping->flags.n.name = FLAG_NUMERIC;
+	ping->flags.n.entered = false;
 }

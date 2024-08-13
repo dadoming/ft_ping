@@ -14,10 +14,13 @@ void calculate_statistics(t_ping *ping) {
 }
 
 void print_statistics(t_ping *ping) {
-	printf("\n--- %s statistics ---\n", ping->dest_addr);
+	printf("\n--- %s ping statistics ---\n", ping->dest_addr);
     if (ping->stats.sent > 0) {
-        printf("%d packets transmitted, %d received, %d%% packet loss, time %ldms\n", ping->stats.sent, ping->stats.received, ping->stats.packet_loss, ping->stats.total_msec);
-		printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n", ping->stats.min, ping->stats.avg, ping->stats.max, ping->stats.mdev);
+		t_flag c = ping->flags.c;
+        printf("%d packets transmitted, %d received, %d%% packet loss, time %ldms\n", ping->stats.sent, ping->stats.received, ping->stats.packet_loss, c.entered && c.value == 1 ? 0 : ping->stats.total_msec);
+		if (ping->stats.received > 0) {
+			printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n", ping->stats.min, ping->stats.avg, ping->stats.max, ping->stats.mdev);
+		}
 	} else {
         printf("No packets were sent, time: %ldms\n", ping->stats.total_msec);
     }
