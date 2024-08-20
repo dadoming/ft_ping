@@ -1,3 +1,6 @@
+# ifndef FT_PING_H
+# define FT_PING_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,7 +53,6 @@ typedef struct s_flags
 typedef struct s_ping_pkt
 {
 	struct icmphdr hdr;
-	// char msg[PING_PACKET_SIZE - sizeof(struct icmphdr)];
 	char msg[PING_PACKET_SIZE - sizeof(struct icmphdr)];
 } t_ping_pkt;
 
@@ -112,4 +114,6 @@ int quiet_flag(t_ping *ping);
 int verbose_flag(t_ping *ping);
 int numeric_flag(t_ping *ping);
 void help_flag(t_ping *ping, int argc, char **argv);
-int timeout_flag(t_ping *ping);
+
+
+# endif

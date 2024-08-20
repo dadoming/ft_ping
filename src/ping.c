@@ -9,7 +9,7 @@ static void receive_ping(t_ping *ping, t_timing *single);
 static void handle_alarm(int sig);
 static void handle_interrupt(int sig);
 
-int g_is_running = true;
+volatile int g_is_running = true;
 static t_ping *global_ping = NULL;
 static t_timing single;
 static t_timing session;
@@ -21,7 +21,8 @@ void start_ping(t_ping *ping) {
     signal(SIGINT, handle_interrupt);
     printf("PING %s (%s) %ld bytes of data.\n", \
         ping->dest_addr, \
-        ping->ip_addr, PING_PACKET_SIZE - sizeof(struct icmphdr));
+        ping->ip_addr, PING_PACKET_SIZE - sizeof(struct icmphdr)\
+    );
 
     handle_alarm(SIGALRM); // Trigger the first ping
     while (g_is_running && count_flag(ping)) {
