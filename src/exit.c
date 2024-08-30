@@ -1,7 +1,6 @@
 # include "../include/ft_ping.h"
 
 void exit_program(t_ping *ping) {
-	// Add frees here
 	if (!ping) {
 		exit(0);
 	}

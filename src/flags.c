@@ -2,7 +2,7 @@
 
 int count_flag(t_ping *ping) {
     if (ping->flags.c.entered) {
-        return ping->flags.c.value > ping->stats.received && ping->flags.c.value > ping->stats.sent;
+        return ping->flags.c.value > ping->stats.received;
     }
     return true;
 }

@@ -49,7 +49,26 @@ In the ICMP packet format, the first 8 bytes are the ICMP header, followed by th
 - Checksum (16 bits): The checksum is used to check the number of bits of the complete message and enable the ICMP tool to ensure that complete data is delivered.
 - Rest of the header (32 bits): This is the Extended Header, which has the work of pointing out the problem in IP Message. Byte locations are identified by the pointer which causes the problem message and receiving device looks here for pointing to the problem.
 
+```c
 
-
-##### Checkout the TSO PING command: Send an echo request
-[IBM docs](https://www.ibm.com/docs/en/zos/3.1.0?topic=ping-tso-command-send-echo-request)
+struct icmphdr
+{
+  uint8_t type;		/* message type */
+  uint8_t code;		/* type sub-code */
+  uint16_t checksum;
+  union
+  {
+    struct
+    {
+      uint16_t	id;
+      uint16_t	sequence;
+    } echo;			/* echo datagram */
+    uint32_t	gateway;	/* gateway address */
+    struct
+    {
+      uint16_t	__glibc_reserved;
+      uint16_t	mtu;
+    } frag;			/* path mtu discovery */
+  } un;
+};
+```

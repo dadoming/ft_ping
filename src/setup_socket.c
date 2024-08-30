@@ -13,7 +13,11 @@ void setup_socket(t_ping *ping) {
 	ping->sock_fd = sock_fd;
 
     dns_lookup(ping);
-    reverse_dns_lookup(ping);
+    if (ping->flags.n.entered == false) {
+        reverse_dns_lookup(ping);
+    } else { // if -n flag is entered then reverse_hostname does not need to be resolved
+        ping->reverse_hostname = NULL;
+    }
 
     if (setsockopt(ping->sock_fd, SOL_IP, IP_TTL, &(ping->ttl), sizeof(ping->ttl)) != 0) {
         printf("\nSetting socket options to TTL failed!\n");
