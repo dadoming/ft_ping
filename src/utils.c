@@ -27,10 +27,10 @@ unsigned short calculate_checksum(void *b, int len) {
 }
 
 // Fill the packet with the ICMP header
-void fill_packet_header(t_ping_pkt *packet, int seq) {
+void fill_packet_header(t_ping_pkt *packet, int seq, int pid) {
     packet->hdr.type = ICMP_ECHO;
     packet->hdr.code = 0;
-    packet->hdr.un.echo.id = getpid();
+    packet->hdr.un.echo.id = pid;
     packet->hdr.un.echo.sequence = seq + 1;
     packet->hdr.checksum = calculate_checksum(packet, sizeof(*packet));
 }

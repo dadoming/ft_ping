@@ -15,6 +15,7 @@
 #include <time.h>
 #include <errno.h>
 #include <math.h>
+#include <ctype.h>
 
 #include <stdbool.h>
 
@@ -23,6 +24,7 @@
 #define FLAG_QUIET "q"
 #define FLAG_NUMERIC "n"
 #define FLAG_HELP "h"
+#define FLAG_TTL "t"
 #define AVAILABLE_FLAGS FLAG_COUNT FLAG_VERBOSE FLAG_QUIET FLAG_NUMERIC FLAG_HELP
 
 #define DEBUG true
@@ -48,6 +50,7 @@ typedef struct s_flags
 	t_flag v;
 	t_flag q;
 	t_flag n;
+	t_flag t;
 } t_flags;
 
 typedef struct s_ping_pkt
@@ -102,7 +105,7 @@ void start_ping(t_ping *ping);
 double calculate_elapsed_time(struct timeval start, struct timeval end);
 void get_current_time(struct timeval *tv);
 unsigned short calculate_checksum(void *b, int len);
-void fill_packet_header(t_ping_pkt *packet, int seq);
+void fill_packet_header(t_ping_pkt *packet, int seq, int pid);
 
 void calculate_statistics(t_ping *ping);
 void print_statistics(t_ping *ping);

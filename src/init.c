@@ -10,6 +10,7 @@ void init_program(t_ping *ping) {
 	}
 	init_flags(ping);
 	ping->ttl = DEFAULT_TIME_TO_LIVE;
+	ping->pid = getpid();
 	bzero(&ping->stats, sizeof(t_ping_stats));
 	ping->stats.all_rtt = malloc(sizeof(double));
 	if (!ping->stats.all_rtt) {
@@ -34,4 +35,8 @@ static void init_flags(t_ping *ping) {
 	ping->flags.n.value = 0;
 	ping->flags.n.name = FLAG_NUMERIC;
 	ping->flags.n.entered = false;
+
+	ping->flags.t.value = 0;
+	ping->flags.t.name = FLAG_TTL;
+	ping->flags.t.entered = false;
 }

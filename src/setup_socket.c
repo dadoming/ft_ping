@@ -3,6 +3,7 @@
 //static int resolve_hostname(const char *hostname, char *ip_str, size_t max_len);
 static void dns_lookup(t_ping *ping);
 static void reverse_dns_lookup(t_ping *ping);
+static bool verify_hostname(const char *hostname);
 
 void setup_socket(t_ping *ping) {
     int sock_fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
@@ -13,10 +14,10 @@ void setup_socket(t_ping *ping) {
 	ping->sock_fd = sock_fd;
 
     dns_lookup(ping);
-    if (ping->flags.n.entered == false) {
-        reverse_dns_lookup(ping);
-    } else { // if -n flag is entered then reverse_hostname does not need to be resolved
+    if (numeric_flag(ping) || verify_hostname(ping->dest_addr) == false) {
         ping->reverse_hostname = NULL;
+    } else {
+        reverse_dns_lookup(ping);
     }
 
     if (setsockopt(ping->sock_fd, SOL_IP, IP_TTL, &(ping->ttl), sizeof(ping->ttl)) != 0) {
@@ -29,6 +30,15 @@ void setup_socket(t_ping *ping) {
         perror("setsockopt() failed");
         exit_program(ping);
     }
+}
+
+static bool verify_hostname(const char *hostname) {
+    for (size_t i = 0; i < strlen(hostname); i++) {
+        if (!isdigit(hostname[i]) && hostname[i] != '.') {
+            return true;
+        }
+    }
+    return false;
 }
 
 static void dns_lookup(t_ping *ping) {

@@ -40,8 +40,11 @@ static void send_ping(t_ping *ping, t_timing *single) {
     t_ping_pkt packet;
 
     bzero(&packet, sizeof(packet));
-    fill_packet_header(&packet, ping->stats.sent);
+    fill_packet_header(&packet, ping->stats.sent, ping->pid);
     get_current_time(&(single->start));
+    if (ping->flags.c.entered && (ping->stats.sent >= ping->flags.c.value)) {
+        return;
+    }
     if (sendto(ping->sock_fd, &packet, sizeof(packet), 0, (struct sockaddr *) &ping->addr_con, sizeof(ping->addr_con)) <= 0) {
         perror("sendto() failed");
 		return;
@@ -59,8 +62,7 @@ static void receive_ping(t_ping *ping, t_timing *single) {
     fd_set read_set;
     FD_ZERO(&read_set);
     FD_SET(ping->sock_fd, &read_set);
-    int rec = select(ping->sock_fd + 1, &read_set, NULL, NULL, &(struct timeval){RECV_TIMEOUT, 0});
-    if (rec <= 0) {
+    if (select(ping->sock_fd + 1, &read_set, NULL, NULL, &(struct timeval){RECV_TIMEOUT, 0}) <= 0) {
         return;
     }
     ssize_t bytes_received = recvfrom(ping->sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr *) &recv_addr, &addr_len);
@@ -73,11 +75,16 @@ static void receive_ping(t_ping *ping, t_timing *single) {
 
     struct iphdr *ip_hdr = (struct iphdr *) buffer;
     struct icmphdr *icmp_hdr = (struct icmphdr *) (buffer + (ip_hdr->ihl * 4));
-    if (icmp_hdr->type == ICMP_ECHOREPLY && icmp_hdr->code == 0 && \
-        icmp_hdr->un.echo.id == getpid()) {
+    if (icmp_hdr->type == ICMP_TIME_EXCEEDED) {
+        if (!quiet_flag(ping)) {
+            printf("Time to live exceeded\n");
+        }
+        return;
+    }
+    if (icmp_hdr->type == ICMP_ECHOREPLY && icmp_hdr->code == 0 && icmp_hdr->un.echo.id == ping->pid) {
         ping->stats.received++;
         if (!quiet_flag(ping)) {
-            if (numeric_flag(ping)) {
+            if (ping->reverse_hostname == NULL) {
                 printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n", bytes_received - sizeof(struct iphdr), ping->ip_addr, icmp_hdr->un.echo.sequence, ip_hdr->ttl, rtt_msec);
             } else {
                 printf("%ld bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3f ms\n", bytes_received - sizeof(struct iphdr), ping->reverse_hostname, ping->ip_addr, icmp_hdr->un.echo.sequence, ip_hdr->ttl, rtt_msec);

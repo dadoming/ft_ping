@@ -35,6 +35,9 @@ void parse_input(t_ping *ping, int argc, char **argv) {
 				case 'n':
 					ping->flags.n.entered = true;
 					break;
+				case 't':
+					enter_flag_data_with_value(&(ping->flags.t), argv, argc, &i);
+					break;
 				default:
 					printf("Unknown flag: %s\n", argv[i]);
 					usage_message(argv[0], 4);
@@ -42,6 +45,12 @@ void parse_input(t_ping *ping, int argc, char **argv) {
 			}
 		}
 		i++;
+	}
+	if (ping->flags.t.entered) {
+		if (ping->flags.t.value < 1 || ping->flags.t.value > 255) {
+			invalid_value(ping, ping->flags.t.value, ping->flags.t.name, " (Valid range: 1-255)");
+		}
+		ping->ttl = ping->flags.t.value;
 	}
 	set_destination_address(ping, argv, argc, i);
 }

@@ -22,17 +22,18 @@ int numeric_flag(t_ping *ping) {
 void help_flag(t_ping *ping, int argc, char **argv) {
     int i = 1;
 	while (i < argc) {
-		if (argv[i][0] == '-' && argv[i][1] && argv[i][1] == 'h' && !argv[i][2]) {
+		if (argv[i][0] == '-' && argv[i][1] && (argv[i][1] == 'h' || argv[i][1] == '?') && !argv[i][2]) {
 			printf("\n\
 Usage:\n\
   ./ping [options] <destination>\n\
 \n\
 Options:\n\
-  <destination>\t\tdns name or ip address\n\
+  <destination>\t\tdns name or ip address of the host to ping\n\
   -c <count>\t\tstop after <count> replies\n\
   -v\t\t\tverbose output (Print details of each packet)\n\
   -q\t\t\tquiet output (Packets are not printed)\n\
   -n\t\t\tnumeric output (No reverse hostname lookup)\n\
+  -t <ttl>\t\tset the ttl value\n\
   -h\t\t\thelp\n\
  \n");
 			exit_program(ping);
