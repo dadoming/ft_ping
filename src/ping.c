@@ -73,7 +73,8 @@ static void receive_ping(t_ping *ping, t_timing *single) {
 
     struct iphdr *ip_hdr = (struct iphdr *) buffer;
     struct icmphdr *icmp_hdr = (struct icmphdr *) (buffer + (ip_hdr->ihl * 4));
-    if (icmp_hdr->type == ICMP_ECHOREPLY && icmp_hdr->code == 0) {
+    if (icmp_hdr->type == ICMP_ECHOREPLY && icmp_hdr->code == 0 && \
+        icmp_hdr->un.echo.id == getpid()) {
         ping->stats.received++;
         if (!quiet_flag(ping)) {
             if (numeric_flag(ping)) {
