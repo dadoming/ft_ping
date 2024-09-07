@@ -1,7 +1,6 @@
 # ft_ping
 
-`ft_ping` is a simplified implementation of the classic `ping` utility, designed to send ICMP (Internet Control Message Protocol) echo requests to network hosts and measure the response time of the echo replies.<br>
-This project was developed as part of the 42 Network program.
+This project is part of the Network branch of the 42 curriculum.
 
 ## Table of Contents
 
@@ -9,6 +8,10 @@ This project was developed as part of the 42 Network program.
 - [Installation](#installation)
 - [Usage](#usage)
   - [Options](#options)
+
+## Description
+
+`ft_ping` is a simplified implementation of the classic `ping` utility, designed to send ICMP (Internet Control Message Protocol) echo requests to network hosts and measure the response time of the echo replies.<br>
 
 ## Features
 
