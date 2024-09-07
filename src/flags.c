@@ -25,7 +25,7 @@ void help_flag(t_ping *ping, int argc, char **argv) {
 		if (argv[i][0] == '-' && argv[i][1] && (argv[i][1] == 'h' || argv[i][1] == '?') && !argv[i][2]) {
 			printf("\n\
 Usage:\n\
-  ./ping [options] <destination>\n\
+  sudo ./ping [options] <destination>\n\
 \n\
 Options:\n\
   <destination>\t\tdns name or ip address of the host to ping\n\
